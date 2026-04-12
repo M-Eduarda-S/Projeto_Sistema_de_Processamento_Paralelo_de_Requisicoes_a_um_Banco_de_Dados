@@ -1,0 +1,1 @@
+# Projeto_Sistema_de_Processamento_Paralelo_de_Requisi-es_a_um_Banco_de_Dados
