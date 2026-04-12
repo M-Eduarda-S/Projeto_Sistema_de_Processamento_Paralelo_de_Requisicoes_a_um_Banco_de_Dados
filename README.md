@@ -9,21 +9,39 @@ Sistema que simula um gerenciador de banco de dados utilizando threads e concorr
 - Yasmin Tarnovski Faccin
 
 ## Tecnologias
-- Python
-- Threads (threading)
-- Mutex (Lock)
+- Linguagem C
+- Threads (pthread)
+- Mutex (controle de concorrência)
+- IPC (FIFO / Named Pipe)
+
+## Como compilar
+```bash
+gcc servidor.c -o servidor -lpthread
+gcc cliente.c -o cliente
 
 ## Como executar
+
+Em um terminal:
 ```bash
-python src/servidor.py
+./servidor
+
+Em outro(s) terminal(is):
+```bash
+./cliente
+
+## Funcionamento do sistema
+
+1. O cliente envia uma requisição (INSERT, SELECT, UPDATE, DELETE)
+2. A requisição é enviada via FIFO (pipe nomeado)
+3. O servidor recebe a requisição
+4. O servidor cria uma thread para processá-la
+5. A thread acessa o banco de dados com proteção de mutex
 
 ## Estrutura:
 ```bash
 src/
 │
-├── cliente.py        # Envia requisições para o servidor
-├── servidor.py       # Recebe requisições e usa threads
-├── banco.py          # Structs e defines
-├── dados.txt         # Simulação da base de dados
-├── utils.py          
-└── main.py           
+├── cliente.c        # Envia requisições para o servidor
+├── servidor.c       # Recebe requisições e usa threads
+├── banco.h          # Structs e defines      
+└── banco.txt        # Simulação da base de dados 
