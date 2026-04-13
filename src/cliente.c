@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include "banco.h"
 
-int main() {
+int main() {   
     int identificaPipe;
     int opcao;
 
