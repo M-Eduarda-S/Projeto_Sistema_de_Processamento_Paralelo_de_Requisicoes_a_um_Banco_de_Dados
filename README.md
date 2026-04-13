@@ -19,6 +19,7 @@ Sistemas Operacionias
 
 ## Como compilar
 ```bash
+cd src
 gcc servidor.c -o servidor -lpthread
 gcc cliente.c -o cliente
 ```
