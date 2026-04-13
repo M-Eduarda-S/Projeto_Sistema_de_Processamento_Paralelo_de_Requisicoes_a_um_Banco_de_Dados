@@ -9,42 +9,45 @@
 #include "requisicoes.h"
 
 void enviar_requisicao(Requisicao req) {
-    int pipe;
-
-    pipe = open(CAMINHO_PIPE, O_WRONLY); // abre o FIFO para escrita
-
+    int pipe = open(CAMINHO_PIPE, O_WRONLY); // abre o FIFO para escrita
     if (pipe < 0) {
-        perror("Erro ao abrir o pipe");
-        return;
+        perror("Erro ao abrir pipe");
+        exit(1);
     }
 
-    //gera um id para o cliente
-    req.pid = getpid();
+    req.pid = getpid(); //gera um id para o cliente
 
     write(pipe, &req, sizeof(Requisicao)); // envia a struct para o servidor
 
     close(pipe); // fecha o pipe
 
-    printf("A requisição foi enviada!\n"); 
+    printf("PID Cliente: %d - A requisição foi enviada!\n", getpid());
 }
 
-/*
-Para estressar o servidor com a lista de requisição:
-defina opcao = 5, comente o menu, mude o break para exit(0);
-use os comandos:
-1)
-gcc servidor.c -o servidor
-./servidor
-2) 
-gcc cliente.c -o cliente
-for i in {1..5}; do ./cliente & done
-*/
+int main(int argQuantidade, char *argVetor[]) {
 
-int main() {
-
-    int opcao;
+    int modo = 1; // interativo
 
     printf("O cliente foi iniciado...\n");
+
+    // modo via argumento
+    if (argQuantidade > 1) { // tenta ler o modo se o usuário passou algo na execução
+        modo = atoi(argVetor[1]); // converte string para inteiro
+    }
+
+    if (modo == 2) {
+        printf("\nExecutando teste de concorrência...\n");
+
+        for (int i = 0; i < 20; i++) {
+            enviar_requisicao(lista_teste[i]);
+            usleep(200000); // pequeno delay
+        }
+
+        printf("Execução finalizada.\n");
+        exit(0);
+    }
+
+    int opcao;
 
     while (1) { // loop infinito
         
@@ -59,7 +62,6 @@ int main() {
 
         scanf("%d", &opcao);
         
-
         if (opcao == 0) break;
 
         Requisicao req;
@@ -68,7 +70,7 @@ int main() {
             case 1:
                 req.tipo = OP_INSERT;
                 printf("ID: "); scanf("%d", &req.reg.id);
-                printf("Nome: "); scanf("%s", req.reg.nome);
+                printf("Nome: "); scanf("%99s", req.reg.nome);
                 enviar_requisicao(req);
                 break;
 
@@ -87,11 +89,11 @@ int main() {
             case 4:
                 req.tipo = OP_UPDATE;
                 printf("ID: "); scanf("%d", &req.reg.id);
-                printf("Novo nome: "); scanf("%s", req.reg.nome);
+                printf("Novo nome: "); scanf("%99s", req.reg.nome);
                 enviar_requisicao(req);
                 break;
 
-            case 5: // Aqui são requisições já prontas para teste
+            case 5: 
                 printf("Executando lista de requisições fixas...\n");
 
                     for (int i = 0; i < 20; i++) {
@@ -101,9 +103,9 @@ int main() {
                     }
 
                     printf("Execução finalizada.\n");
-                    exit(0);
+                    break; 
 
-            default:
+            default: 
                 printf("Opção inválida! Tente novamente\n");
         }
     }

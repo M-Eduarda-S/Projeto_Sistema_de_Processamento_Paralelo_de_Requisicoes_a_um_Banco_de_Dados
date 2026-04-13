@@ -118,9 +118,10 @@ void* iniciarThread(void* args){
 
             pthread_mutex_lock(&mutex_log);
             FILE *arquivo_log = fopen("auditoria.log","a");
+            pthread_t idThread = pthread_self(); // pega o ID da Thread atual em execução
             if (arquivo_log != NULL) {
-                fprintf(arquivo_log, "PID Cliente: %d | Operação: %s | Status: %s\n", 
-                        task.pid, op_texto, status_txt);
+                fprintf(arquivo_log, "Thread %lu | PID Cliente: %d | Operação: %s | Status: %s\n", 
+                        idThread, task.pid, op_texto, status_txt);
                 
                 fclose(arquivo_log);
             } else {
@@ -152,7 +153,6 @@ int main(int argc, char* argv[]){
             perror("Erro ao criar a thread!");
         }
     }
-    
     
     // servidor aberto  
     while(1){

@@ -34,6 +34,35 @@ Em outro(s) terminal(is):
 ./cliente
 ```
 
+---
+
+## Teste de Concorrência 
+Para demonstrar o processamento concorrente do servidor, é possível executar múltiplos clientes simultaneamente enviando várias requisições automaticamente.
+
+---
+
+### Passo 1: Compilar e executar o servidor
+
+```bash
+cd src
+gcc servidor.c -o servidor -lpthread
+./servidor
+```
+
+---
+
+### Passo 2: Compilar e executar múltiplos clientes
+Em outro terminal:
+```bash
+cd src
+gcc cliente.c -o cliente
+
+# Executa 5 clientes simultaneamente
+for i in {1..5}; do ./cliente 2 & done
+```
+
+---
+
 ## Funcionamento do sistema
 1. O cliente envia uma requisição (INSERT, SELECT, UPDATE, DELETE)
 2. A requisição é enviada via FIFO (pipe nomeado)
