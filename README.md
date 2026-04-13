@@ -4,7 +4,7 @@
 Sistema que simula um gerenciador de banco de dados utilizando threads e concorrência.
 
 ## Disciplina:
-Sistemas Operacionias
+Sistemas Operacionais
 
 ## Acadêmicas:
 - Beatriz Pimentel Bagesteiro Alves
