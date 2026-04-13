@@ -18,20 +18,36 @@ void enviar_requisicao(Requisicao req) {
         return;
     }
 
+    //gera um id para o cliente
+    req.pid = getpid();
+
     write(pipe, &req, sizeof(Requisicao)); // envia a struct para o servidor
 
     close(pipe); // fecha o pipe
 
-    printf("A requisição foi enviada!\n");
+    printf("A requisição foi enviada!\n"); 
 }
 
+/*
+Para estressar o servidor com a lista de requisição:
+defina opcao = 5, comente o menu, mude o break para exit(0);
+use os comandos:
+1)
+gcc servidor.c -o servidor
+./servidor
+2) 
+gcc cliente.c -o cliente
+for i in {1..5}; do ./cliente & done
+*/
+
 int main() {
+
     int opcao;
 
     printf("O cliente foi iniciado...\n");
 
     while (1) { // loop infinito
-
+        
         printf("\nOperações disponíveis: \n");
         printf("1- Insert \n");
         printf("2- Select \n");
@@ -42,6 +58,7 @@ int main() {
         printf("Escolha uma opção: "); 
 
         scanf("%d", &opcao);
+        
 
         if (opcao == 0) break;
 
@@ -84,7 +101,7 @@ int main() {
                     }
 
                     printf("Execução finalizada.\n");
-                    break;
+                    exit(0);
 
             default:
                 printf("Opção inválida! Tente novamente\n");
