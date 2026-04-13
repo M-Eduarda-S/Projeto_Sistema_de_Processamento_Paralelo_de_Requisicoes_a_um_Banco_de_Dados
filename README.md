@@ -17,6 +17,8 @@ Sistemas Operacionais
 - Mutex (controle de concorrência)
 - IPC (FIFO / Named Pipe)
 
+Obs: Este projeto deve ser executado em Linux ou GitHub Codespaces.
+
 ## Como compilar
 ```bash
 cd src
