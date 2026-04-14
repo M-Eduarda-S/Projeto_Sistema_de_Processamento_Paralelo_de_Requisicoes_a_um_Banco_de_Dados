@@ -1,22 +1,4 @@
-/*
- * ============================================================================
- * SERVIDOR DE BANCO DE DADOS COM PROCESSAMENTO PARALELO
- * ============================================================================
- * Responsabilidades:
- *  - Recebe requisições (INSERT, SELECT, UPDATE, DELETE) via FIFO (IPC)
- *  - Gerencia um pool de 4 threads para processamento paralelo
- *  - Protege acesso à base de dados com mutex
- *  - Mantém fila de requisições para processamento ordenado
- *  - Gera arquivo de auditoria (log) com rastreamento de operações
- * 
- * Fluxo:
- *  1. Servidor inicia e cria 4 threads worker
- *  2. Abre pipe nomeado (FIFO) para receber requisições
- *  3. Ao receber requisição, adiciona à fila de processamento
- *  4. Threads processam requisições da fila em paralelo
- *  5. Cada operação é registrada em arquivo de log com ID da thread e PID
- * ============================================================================
- */
+// O servidor.c recebe as requisições dos clientes via FIFO, armazena elas em uma fila e processa elas de forma concorrente usando threads, garantindo segurança com o uso de mutex
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,102 +11,130 @@
 #include <unistd.h>
 #include "banco.h"
 
-/* ========== CONFIGURAÇÕES DO SERVIDOR ========== */
-#define THREAD_NUM 4              // Pool de 4 threads para processamento paralelo
-#define TAM_MAX_BD 10000          // Capacidade máxima do banco simulado
+#define THREAD_NUM 4 // pool de 4 threads
+#define TAM_MAX_BD 10000         
 
-/* ========== ESTRUTURAS DE DADOS ========== */
-Registro bd_simulado[TAM_MAX_BD];  // Simulação da base de dados em memória
-int bd_count = 0;                   // Contador de registros no banco
+Registro bd_simulado[TAM_MAX_BD];  // simulação da base de dados em memória
+int bd_count = 0; // contador de registros no banco
 
-Requisicao registroQueue[256];      // Fila de requisições a processar
-int registroCount = 0;              // Quantidade de requisições na fila
+Requisicao registroQueue[256]; // fila de requisições a processar
+int registroCount = 0; // quantidade de requisições na fila
 
-/* ========== MUTEXES PARA SINCRONIZAÇÃO ========== */
-pthread_mutex_t mutex_bd;           // Protege acesso à base de dados
-pthread_mutex_t mutex_fila;         // Protege acesso à fila de requisições
-pthread_mutex_t mutex_log;          // Protege escrita no arquivo de auditoria
+// protege acesso a base de dados e a fila de requisições
+pthread_mutex_t mutex_bd;
+pthread_mutex_t mutex_fila;
+pthread_mutex_t mutex_log; // protege escrita no arquivo de auditoria.log
 
-// Protótipos de funções
-// Processa uma requisição e atualiza o banco de dados simulado
-// Retorna 0 para sucesso, -1 para falha (ex: banco cheio, registro não encontrado)
-//
+// protótipos de funções
 int salvarRequisicao(Requisicao* req){
     int status = 0;
     switch(req->tipo){
         case OP_INSERT:
             printf("Executando INSERT...\n");
-            //Impedir condicao de corrida
-            pthread_mutex_lock(&mutex_bd);
+            pthread_mutex_lock(&mutex_bd); // impedir condicao de corrida
+
             if(bd_count < TAM_MAX_BD){
                 bd_simulado[bd_count] = req->reg;
                 bd_count++;
                 status = 0;
+            } else {
+                status = 1; // banco cheio
             }
-            //liberando o mutex
-            pthread_mutex_unlock(&mutex_bd);
+
+            pthread_mutex_unlock(&mutex_bd); // liberando o mutex
             break;
+
         case OP_DELETE:
             printf("Executando DELETE...\n");
             pthread_mutex_lock(&mutex_bd);
+
+            int encontrou_delete = 0; // se encontrou o id
+
             for (int i = 0; i < bd_count; i++) {
                 if (bd_simulado[i].id == req->reg.id) {
                     bd_simulado[i].id = -1;
+                    encontrou_delete = 1;
                     status = 0;
                     break;
                 }
             }
-            bd_count--; 
+
+            if (encontrou_delete) {
+                bd_count--;
+            } else {
+                status = 1; // não encontrou
+            }
+
             pthread_mutex_unlock(&mutex_bd);
             break;
+
         case OP_SELECT:
             printf("Executando SELECT...\n");
             pthread_mutex_lock(&mutex_bd);
+
+            int encontrou_select = 0;
+
             for (int i = 0; i < bd_count; i++) {
                 if (bd_simulado[i].id == req->reg.id) {
                     printf("Nome: %s\n", bd_simulado[i].nome);
+                    encontrou_select = 1;
                     break;
                 }
-                status = 0;
             }
+
+            if (encontrou_select) {
+                status = 0; 
+            } else {
+                status = 1; // não encontrou
+            }
+
             pthread_mutex_unlock(&mutex_bd);
             break;
+
         case OP_UPDATE:
             printf("Executando UPDATE...\n");
             pthread_mutex_lock(&mutex_bd);
+
+            int encontrou_update = 0;
+
             for (int i = 0; i < bd_count; i++) {
                 if (bd_simulado[i].id == req->reg.id) {
                     strcpy(bd_simulado[i].nome, req->reg.nome);
+                    encontrou_update = 1;
                     break;
                 }
             }
-            status = 0;
+
+            if (encontrou_update) {
+                status = 0;
+            } else {
+                status = 1; // não encontrou
+            }
+
             pthread_mutex_unlock(&mutex_bd);
             break;
+
         default:
             printf("Operação Invalída!\n");
     }
     return status;
 }
 
-// Adiciona uma requisição à fila de processamento
-// Sincroniza acesso à fila com mutex para evitar condições de corrida
-// Recebe uma requisição e a adiciona à fila de tarefas para as threads processarem
-/
+// recebe uma requisição e a adiciona a fila de tarefas para as threads processarem
 void submitTask(Requisicao reg){
-    pthread_mutex_lock(&mutex_fila);    // Adquire exclusividade sobre a fila
-    registroQueue[registroCount] = reg;  // Adiciona requisição
-    registroCount++;                     // Incrementa contador
-    pthread_mutex_unlock(&mutex_fila);  // Libera acesso à fila
+    pthread_mutex_lock(&mutex_fila); 
+    registroQueue[registroCount] = reg; // adiciona requisição
+    registroCount++;                    
+    pthread_mutex_unlock(&mutex_fila); // libera acesso à fila
 }
 
-// Função executada por cada thread worker para processar requisições da fila
+// função executada por cada thread worker para processar requisições da fila
 void* iniciarThread(void* args){
     while(1){
         Requisicao task;
         int existe = 0;
 
-        pthread_mutex_lock(&mutex_fila);  // Protege leitura da fila
+        pthread_mutex_lock(&mutex_fila); // protege leitura da fila
         if(registroCount > 0){
             task = registroQueue[0];
             int i = 0;
@@ -148,10 +158,11 @@ void* iniciarThread(void* args){
                 default:        op_texto = "DESCONHECIDA";
             }
 
-            // Registra operação no arquivo de log 
-            pthread_mutex_lock(&mutex_log);  // Protege escrita no arquivo
+            // registra operação no arquivo de log 
+            pthread_mutex_lock(&mutex_log); // protege escrita no arquivo
             FILE *arquivo_log = fopen("auditoria.log","a");
-            pthread_t idThread = pthread_self(); // pega o ID da Thread atual em execução
+            pthread_t idThread = pthread_self(); // pega o id da thread atual em execução
+
             if (arquivo_log != NULL) {
                 fprintf(arquivo_log, "Thread %lu | PID Cliente: %d | Operação: %s | Status: %s\n", 
                         idThread, task.pid, op_texto, status_txt);
@@ -165,61 +176,53 @@ void* iniciarThread(void* args){
     }
 }
 
-// Função principal do servidor: inicializa mutexes, cria threads e gerencia recebimento de requisições
-int main(int argc, char* argv[]){
-    // ===== INICIALIZAÇÃO DE MUTEXES =====
-    // Mutex para sincronizar acesso ao banco de dados
-    pthread_mutex_init(&mutex_bd,NULL);
-    // Mutex para sincronizar acesso à fila de requisições
+int main(int argc, char* argv[]) {
+
+    // mutex para sincronizar acessos e escrita 
+    pthread_mutex_init(&mutex_bd,NULL); 
     pthread_mutex_init(&mutex_fila,NULL);
-    // Mutex para sincronizar escrita no arquivo de log
     pthread_mutex_init(&mutex_log,NULL);
 
-    // ===== CONFIGURAÇÃO DO PIPE (FIFO) =====
-    // FIFO (Named Pipe) para comunicação entre cliente e servidor
-    // Permite que múltiplos clientes enviem requisições ao servidor
-    //"portal" para a memória RAM, qualquer programa pode procura-lo
-    // pelo nome e colocar dados la dentro
-    if(mkfifo(CAMINHO_PIPE, 0777) == -1){
-        // verifica se o pipe existe
-        if(errno != EEXIST){
+    // FIFO para comunicação entre cliente e servidor
+    if(mkfifo(CAMINHO_PIPE, 0777) == -1){ 
+        if(errno != EEXIST){ // verifica se o pipe existe
             printf("Não foi possível criar o arquivo pipe\n");
         }
     }
 
-    // ===== CRIAÇÃO DO POOL DE THREADS =====
-    pthread_t th[THREAD_NUM];  // Array para armazenar IDs das threads
+    pthread_t th[THREAD_NUM];  // armazena ids das threads
+    
     int i;
     for(i = 0; i < THREAD_NUM; i++){
-        // Cria 4 threads workers que processarão requisições em paralelo
+        // cria 4 threads workers que processarão requisições em paralelo
         if(pthread_create(&th[i], NULL, &iniciarThread, NULL) != 0){
             perror("Erro ao criar a thread!");
         }
     }
     
-    // ===== LOOP PRINCIPAL: Recebimento de Requisições =====
-    // Mantém o servidor em funcionamento permanente
+    // mantém o servidor em funcionamento permanente
     while(1){
         printf("Servidor aberto...\n");
-        // Abre o FIFO para leitura (bloqueia até que um cliente conecte)
-        int fd = open(CAMINHO_PIPE, O_RDONLY);
+        
+        int fd = open(CAMINHO_PIPE, O_RDONLY); // abre o FIFO para leitura
         if(fd == -1){
             return 1;
         }
         
         Requisicao dado_recebido;
         
-        // Recebe requisições enquanto o cliente estiver conectado
+        // recebe requisições enquanto o cliente estiver conectado
         while(1){
-            // Lê dados do pipe - requisição estruturada (struct Requisicao)
+            // lê dados do pipe
             int dados_bytes = read(fd, &dado_recebido, sizeof(Requisicao));
-            if(dados_bytes > 0){
+
+            if (dados_bytes > 0) {
                 submitTask(dado_recebido);
                 printf("Server: Tarefa recebida e enviada para a fila!\n");
-            }else if(dados_bytes == 0){
+            } else if(dados_bytes == 0) {
                 printf("Server: Cliente desconectado\n");
                 break;
-            }else{
+            } else {
                 perror("Server: Erro grave na leitura do Pipe");
                 break;
             }

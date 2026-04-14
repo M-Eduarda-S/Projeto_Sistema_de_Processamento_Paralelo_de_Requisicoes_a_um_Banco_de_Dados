@@ -1,4 +1,4 @@
-// Envia requisições estruturadas para o servidor utilizando IPC (FIFO/named pipe)
+// O cliente.c envia requisições estruturadas para o servidor utilizando IPC (FIFO/named pipe)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,38 +8,36 @@
 #include "banco.h"
 #include "requisicoes.h"
 
-// Envia uma requisição para o servidor via FIFO
+// envia uma requisição para o servidor via FIFO
 void enviar_requisicao(Requisicao req) {
-    // Abre FIFO para escrita (bloqueia se servidor não está lendo)
-    int pipe = open(CAMINHO_PIPE, O_WRONLY);
+    
+    int pipe = open(CAMINHO_PIPE, O_WRONLY); // abre FIFO para escrita 
     if (pipe < 0) {
         perror("Erro ao abrir pipe");
         exit(1);
     }
 
-    req.pid = getpid(); // Adiciona ID do cliente para rastreamento no servidor
+    req.pid = getpid(); // adiciona id do cliente
 
-    // Envia requisição como estrutura binária
-    write(pipe, &req, sizeof(Requisicao));
+    write(pipe, &req, sizeof(Requisicao)); // envia requisição como estrutura binária
 
-    close(pipe);  // fecha o pipe após enviar a requisição
+    close(pipe); // fecha o pipe 
 
     printf("PID Cliente: %d - A requisição foi enviada!\n", getpid());
 }
 
-// Função principal do cliente: oferece menu para enviar requisições ou executar teste pré-definido
 int main(int argQuantidade, char *argVetor[]) {
 
-    int modo = 1;  // interativo
+    int modo = 1; // interativo
 
     printf("O cliente foi iniciado...\n");
 
-    // Lê modo de operação se fornecido como argumento
+    // lê modo de operação se fornecido como argumento
     if (argQuantidade > 1) {
-        modo = atoi(argVetor[1]); // Converte argumento para inteiro
+        modo = atoi(argVetor[1]); // converte argumento para inteiro
     }
 
-   // teste pré-definido: executa sequência de requisições para demonstrar funcionalidade do servidor
+   // teste pré-definido
     if (modo == 2) {
         printf("\nExecutando teste de concorrência...\n");
 
@@ -52,10 +50,10 @@ int main(int argQuantidade, char *argVetor[]) {
         exit(0);
     }
 
-    // Menu para escolher operações manualmente
+    // menu operações manuais
     int opcao;
 
-    while (1) { // Loop até usuário escolher sair
+    while (1) { // loop até usuário escolher sair
         
         printf("\nOperações disponíveis: \n");
         printf("1- Insert \n");
