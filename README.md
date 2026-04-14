@@ -17,7 +17,13 @@ Sistemas Operacionais
 - Mutex (controle de concorrência)
 - IPC (FIFO / Named Pipe)
 
-Obs: Este projeto deve ser executado em Linux ou GitHub Codespaces.
+## Requisitos de Execução
+Este projeto deve ser executado em ambiente Linux ou no GitHub Codespaces, pois utiliza:
+- FIFO (Named Pipes)
+- Threads POSIX (pthread)
+
+Obs: Não é garantido funcionamento em Windows sem adaptações.
+---
 
 ## Como compilar
 ```bash
@@ -33,6 +39,7 @@ Em um terminal:
 ```
 Em outro(s) terminal(is):
 ```bash
+cd src
 ./cliente
 ```
 
