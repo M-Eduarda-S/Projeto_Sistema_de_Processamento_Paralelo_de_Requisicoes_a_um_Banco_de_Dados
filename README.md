@@ -115,7 +115,7 @@ Isso permite testar facilmente:
 ---
 
 ## Registro de Execução `auditoria.log`
-O sistema gera automaticamente um arquivo chamado auditoria.log, que registra todas as operações processadas pelo servidor.
+O sistema gera automaticamente um arquivo chamado `auditoria.log`, que registra todas as operações processadas pelo servidor.
 
 Cada linha do log contém:
 - ID da thread que executou a operação;
