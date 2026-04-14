@@ -8,33 +8,38 @@
 #include "banco.h"
 #include "requisicoes.h"
 
+// Envia uma requisição para o servidor via FIFO
 void enviar_requisicao(Requisicao req) {
-    int pipe = open(CAMINHO_PIPE, O_WRONLY); // abre o FIFO para escrita
+    // Abre FIFO para escrita (bloqueia se servidor não está lendo)
+    int pipe = open(CAMINHO_PIPE, O_WRONLY);
     if (pipe < 0) {
         perror("Erro ao abrir pipe");
         exit(1);
     }
 
-    req.pid = getpid(); //gera um id para o cliente
+    req.pid = getpid(); // Adiciona ID do cliente para rastreamento no servidor
 
-    write(pipe, &req, sizeof(Requisicao)); // envia a struct para o servidor
+    // Envia requisição como estrutura binária
+    write(pipe, &req, sizeof(Requisicao));
 
-    close(pipe); // fecha o pipe
+    close(pipe);  // fecha o pipe após enviar a requisição
 
     printf("PID Cliente: %d - A requisição foi enviada!\n", getpid());
 }
 
+// Função principal do cliente: oferece menu para enviar requisições ou executar teste pré-definido
 int main(int argQuantidade, char *argVetor[]) {
 
-    int modo = 1; // interativo
+    int modo = 1;  // interativo
 
     printf("O cliente foi iniciado...\n");
 
-    // modo via argumento
-    if (argQuantidade > 1) { // tenta ler o modo se o usuário passou algo na execução
-        modo = atoi(argVetor[1]); // converte string para inteiro
+    // Lê modo de operação se fornecido como argumento
+    if (argQuantidade > 1) {
+        modo = atoi(argVetor[1]); // Converte argumento para inteiro
     }
 
+   // teste pré-definido: executa sequência de requisições para demonstrar funcionalidade do servidor
     if (modo == 2) {
         printf("\nExecutando teste de concorrência...\n");
 
@@ -47,9 +52,10 @@ int main(int argQuantidade, char *argVetor[]) {
         exit(0);
     }
 
+    // Menu para escolher operações manualmente
     int opcao;
 
-    while (1) { // loop infinito
+    while (1) { // Loop até usuário escolher sair
         
         printf("\nOperações disponíveis: \n");
         printf("1- Insert \n");

@@ -4,25 +4,35 @@
 
 #include <stdio.h>
 
-#define TAMANHO_NOME 50
-#define TAMANHO_MEMORIA_TEMPORARIA 256
-#define CAMINHO_PIPE "/tmp/bd_pipe"
-#define CAMINHO_PIPE_RES "/tmp/resposta_pipe"
+/* ===== CONFIGURAÇÕES ===== */
+#define TAMANHO_NOME 50                 // Tamanho máximo do campo nome em um registro
+#define TAMANHO_MEMORIA_TEMPORARIA 256  // Tamanho buffer temporário
+#define CAMINHO_PIPE "/tmp/bd_pipe"    // Localização do FIFO servidor
+#define CAMINHO_PIPE_RES "/tmp/resposta_pipe"  // FIFO para respostas
 
-// tipos de Operação
-typedef enum { OP_INSERT, OP_DELETE, OP_SELECT, OP_UPDATE } OperacaoTipo;
+/* ===== TIPOS DE OPERAÇÃO ===== */
+// Definição de operações CRUD suportadas ao banco de dados
+typedef enum { 
+    OP_INSERT,  
+    OP_DELETE,  
+    OP_SELECT,  
+    OP_UPDATE   
+} OperacaoTipo;
 
-// estrutura interna do "banco"
+/* ===== ESTRUTURA DE REGISTRO ===== */
+// Representa um registro no banco de dados simulado
 typedef struct {
- int id;
- char nome[TAMANHO_NOME];
+    int id;                    // Identificador único do registro
+    char nome[TAMANHO_NOME];   // Nome associado ao registro
 } Registro;
 
-// estrutura da Requisição via IPC
+/* ===== ESTRUTURA DE REQUISIÇÃO =====*/
+// Pacote de dados enviado cliente -> servidor via FIFO
+// Serializado binariamente para transmissão
 typedef struct {
-    OperacaoTipo tipo;
-    pid_t pid;
-    Registro reg;
+    OperacaoTipo tipo;  // Tipo de operação a executar
+    pid_t pid;          // ID do processo cliente (para rastreamento)
+    Registro reg;       // Dados do registro (ID e nome)
 } Requisicao;
 
 #endif
