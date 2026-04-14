@@ -1,47 +1,40 @@
 // Lista com requisições já prontas
+
 #ifndef REQUISICOES_H
 #define REQUISICOES_H
 
 #include "banco.h"
 
-/* ===== LISTA DE TESTE (20 operações variadas) ===== */
-// Sequência: 5 INSERT -> 3 SELECT -> 3 UPDATE -> 3 SELECT -> 2 DELETE -> 3 SELECT
-// Demonstra todas as operações CRUD em ordem lógica
+// lista de teste em ordem lógica: 5 INSERT, 3 SELECT, 3 UPDATE, 3 SELECT, 2 DELETE e 3 SELECT
 Requisicao lista_teste[20] = {
-    // INSERT
     {OP_INSERT, -1,{1, "Ana"}},
     {OP_INSERT, -1,{2, "Carlos"}},
     {OP_INSERT, -1,{3, "Beatriz"}},
     {OP_INSERT, -1,{4, "Lucas"}},
     {OP_INSERT, -1,{5, "Fernanda"}},
 
-    // SELECT
     {OP_SELECT, -1,{1, ""}},
     {OP_SELECT, -1,{3, ""}},
     {OP_SELECT, -1,{5, ""}},
 
-    // UPDATE
     {OP_UPDATE, -1,{1, "Ana_Silva"}},
     {OP_UPDATE, -1,{2, "Carlos_Edu"}},
     {OP_UPDATE, -1,{3, "Bia_Mendes"}},
 
-    // SELECT (verifica updates)
+    // verifica updates
     {OP_SELECT, -1,{1, ""}},
     {OP_SELECT, -1,{2, ""}},
     {OP_SELECT, -1,{3, ""}},
 
-    // DELETE
     {OP_DELETE, -1,{2, ""}},
     {OP_DELETE, -1,{4, ""}},
 
-    // SELECT finais
-    {OP_SELECT, -1,{2, ""}},
-    {OP_SELECT, -1,{4, ""}},
-    {OP_SELECT, -1,{5, ""}}
+    {OP_SELECT, -1,{2, ""}}, // Status: Falha - registro com id 2 foi deletado antes
+    {OP_SELECT, -1,{4, ""}}, // Status: Falha - registro com id 4 foi deletado antes
+    {OP_SELECT, -1,{5, ""}}  // pode falhar em execução concorrente, já que a ordem das threads é não garantida
 };
 
-/* ===== LISTA DE INSERTS (10 operações) ==== */
-// Array de requisições apenas de INSERT para teste de limite
+// requisições apenas de INSERT
 Requisicao lista_insert[10] = {
     {OP_INSERT, 0,{1, "Ana"}},
     {OP_INSERT, 0,{2, "Carlos"}},
@@ -55,8 +48,7 @@ Requisicao lista_insert[10] = {
     {OP_INSERT, 0,{10, "Juliana"}}
 };
 
-/* ===== LISTA DE SELECTS (10 operações) ===== */
-// Array de requisições apenas de SELECT para teste de leitura em paralelo
+// requisições apenas de SELECT 
 Requisicao lista_select[10] = {
     {OP_SELECT, 0,{1, ""}},
     {OP_SELECT, 0,{2, ""}},
@@ -70,8 +62,7 @@ Requisicao lista_select[10] = {
     {OP_SELECT, 0,{10, ""}}
 };
 
-/* ===== LISTA DE UPDATES (10 operações) ===== */
-// Array de requisições apenas de UPDATE para teste de modificação de dados
+// requisições apenas de UPDATE
 Requisicao lista_update[10] = {
     {OP_UPDATE, 0,{1, "Ana_Silva"}},
     {OP_UPDATE, 0,{2, "Carlos_Edu"}},
@@ -85,8 +76,7 @@ Requisicao lista_update[10] = {
     {OP_UPDATE, 0,{10, "Ju_Lima"}}
 };
 
-/* ===== LISTA DE DELETES (10 operações) ===== */
-// Array de requisições apenas de DELETE para teste de remoção em paralelo
+// requisições apenas de DELETE
 Requisicao lista_delete[10] = {
     {OP_DELETE, 0,{1, ""}},
     {OP_DELETE, 0,{2, ""}},

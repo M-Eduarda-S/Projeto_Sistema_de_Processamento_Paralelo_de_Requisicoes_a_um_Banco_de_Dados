@@ -73,27 +73,33 @@ int main(int argQuantidade, char *argVetor[]) {
         switch (opcao) { 
             case 1:
                 req.tipo = OP_INSERT;
-                printf("ID: "); scanf("%d", &req.reg.id);
-                printf("Nome: "); scanf("%99s", req.reg.nome);
+                printf("ID: "); 
+                scanf("%d", &req.reg.id);
+                printf("Nome: "); 
+                scanf("%99s", req.reg.nome);
                 enviar_requisicao(req);
                 break;
 
             case 2:
                 req.tipo = OP_SELECT;
-                printf("ID: "); scanf("%d", &req.reg.id);
+                printf("ID: "); 
+                scanf("%d", &req.reg.id);
                 enviar_requisicao(req);
                 break;
 
             case 3:
                 req.tipo = OP_DELETE;
-                printf("ID: "); scanf("%d", &req.reg.id);
+                printf("ID: "); 
+                scanf("%d", &req.reg.id);
                 enviar_requisicao(req);
                 break;
 
             case 4:
                 req.tipo = OP_UPDATE;
-                printf("ID: "); scanf("%d", &req.reg.id);
-                printf("Novo nome: "); scanf("%99s", req.reg.nome);
+                printf("ID: "); 
+                scanf("%d", &req.reg.id);
+                printf("Novo nome: "); 
+                scanf("%99s", req.reg.nome);
                 enviar_requisicao(req);
                 break;
 
