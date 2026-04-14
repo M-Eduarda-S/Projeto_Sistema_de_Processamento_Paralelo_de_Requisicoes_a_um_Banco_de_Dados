@@ -21,6 +21,7 @@ Sistemas Operacionais
 Este projeto deve ser executado em ambiente Linux ou no GitHub Codespaces, pois utiliza:
 - FIFO (Named Pipes)
 - Threads POSIX (pthread)
+- Chamadas de sistema específicas do Linux
 
 Obs: Não é garantido funcionamento em Windows sem adaptações.
 ---
@@ -69,6 +70,43 @@ gcc cliente.c -o cliente
 # Executa 5 clientes simultaneamente
 for i in {1..5}; do ./cliente 2 & done
 ```
+
+---
+
+## Observações sobre concorrência
+Devido ao uso de threads, o sistema executa as requisições de forma concorrente, ou seja, a ordem de execução não é garantida.
+
+Isso significa que:
+- Algumas operações podem ser executadas fora da ordem em que foram enviadas
+- Um SELECT pode ocorrer antes de um INSERT ou após um DELETE, dependendo do escalonamento das threads
+- Por isso, em alguns casos, operações podem retornar "Falha" mesmo estando corretas logicamente
+
+→ Exemplo:
+Após um DELETE, um SELECT do mesmo ID irá retornar falha, pois o registro não existe mais.
+Além disso, mesmo sem DELETE, em execução concorrente: 
+- Um SELECT pode ocorrer antes do INSERT correspondente
+- Isso é esperado em sistemas concorrentes e faz parte do comportamento do projeto
+
+---
+
+## Personalização das requisições
+O arquivo `requisicoes.h` contém listas de requisições prontas para testes, como:
+`lista_teste`
+`lista_insert`
+`lista_select`
+`lista_update`
+`lista_delete`
+
+→ O usuário pode:
+- Alterar as listas existentes
+- Criar novas combinações de operações
+- Simular diferentes cenários de concorrência
+
+Isso permite testar facilmente:
+- Inserções em massa
+- Consultas simultâneas
+- Atualizações concorrentes
+- Remoções e seus impactos
 
 ---
 
