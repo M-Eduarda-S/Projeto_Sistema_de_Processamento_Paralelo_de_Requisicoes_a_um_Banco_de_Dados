@@ -82,20 +82,20 @@ Isso significa que:
 - Por isso, em alguns casos, operações podem retornar "Falha" mesmo estando corretas logicamente
 
 → Exemplo:
-Após um DELETE, um SELECT do mesmo ID irá retornar falha, pois o registro não existe mais.
-Além disso, mesmo sem DELETE, em execução concorrente: 
-- Um SELECT pode ocorrer antes do INSERT correspondente
-- Isso é esperado em sistemas concorrentes e faz parte do comportamento do projeto
+- Após um DELETE, um SELECT do mesmo ID irá retornar falha, pois o registro não existe mais.
+- Além disso, mesmo sem DELETE, em execução concorrente: 
+  - Um SELECT pode ocorrer antes do INSERT correspondente
+  - Isso é esperado em sistemas concorrentes e faz parte do comportamento do projeto
 
 ---
 
 ## Personalização das requisições
 O arquivo `requisicoes.h` contém listas de requisições prontas para testes, como:
-`lista_teste`
-`lista_insert`
-`lista_select`
-`lista_update`
-`lista_delete`
+`lista_teste`,
+`lista_insert`,
+`lista_select`,
+`lista_update`,
+`lista_delete`.
 
 → O usuário pode:
 - Alterar as listas existentes
