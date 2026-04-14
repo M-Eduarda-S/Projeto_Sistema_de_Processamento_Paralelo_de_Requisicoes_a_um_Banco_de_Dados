@@ -28,10 +28,13 @@ pthread_mutex_t mutex_log; // protege escrita no arquivo de auditoria.log
 // protótipos de funções
 int salvarRequisicao(Requisicao* req){
     int status = 0;
+    printf("[Aguardando] Thread %ld quer acessar o banco...\n", pthread_self());
+    pthread_mutex_lock(&mutex_bd); // impedir condicao de corrida
+    printf(">> [ENTROU] Thread %ld trancou a porta!\n", pthread_self());
+    usleep(200000); // Para testar a concorrência, adicionamos um sleep para acumular as threads
     switch(req->tipo){
         case OP_INSERT:
             printf("Executando INSERT...\n");
-            pthread_mutex_lock(&mutex_bd); // impedir condicao de corrida
 
             if(bd_count < TAM_MAX_BD){
                 bd_simulado[bd_count] = req->reg;
@@ -40,13 +43,10 @@ int salvarRequisicao(Requisicao* req){
             } else {
                 status = 1; // banco cheio
             }
-
-            pthread_mutex_unlock(&mutex_bd); // liberando o mutex
             break;
 
         case OP_DELETE:
             printf("Executando DELETE...\n");
-            pthread_mutex_lock(&mutex_bd);
 
             int encontrou_delete = 0; // se encontrou o id
 
@@ -65,12 +65,10 @@ int salvarRequisicao(Requisicao* req){
                 status = 1; // não encontrou
             }
 
-            pthread_mutex_unlock(&mutex_bd);
             break;
 
         case OP_SELECT:
             printf("Executando SELECT...\n");
-            pthread_mutex_lock(&mutex_bd);
 
             int encontrou_select = 0;
 
@@ -88,12 +86,10 @@ int salvarRequisicao(Requisicao* req){
                 status = 1; // não encontrou
             }
 
-            pthread_mutex_unlock(&mutex_bd);
             break;
 
         case OP_UPDATE:
             printf("Executando UPDATE...\n");
-            pthread_mutex_lock(&mutex_bd);
 
             int encontrou_update = 0;
 
@@ -111,12 +107,13 @@ int salvarRequisicao(Requisicao* req){
                 status = 1; // não encontrou
             }
 
-            pthread_mutex_unlock(&mutex_bd);
             break;
-
-        default:
+            
+            default:
             printf("Operação Invalída!\n");
-    }
+        }
+    printf("<< [SAIU] Thread %ld terminou e abriu a porta.\n", pthread_self());
+    pthread_mutex_unlock(&mutex_bd);
     return status;
 }
 
@@ -202,7 +199,7 @@ int main(int argc, char* argv[]) {
     
     // mantém o servidor em funcionamento permanente
     while(1){
-        printf("Servidor aberto...\n");
+        ///printf("Servidor aberto...\n");
         
         int fd = open(CAMINHO_PIPE, O_RDONLY); // abre o FIFO para leitura
         if(fd == -1){
@@ -218,12 +215,12 @@ int main(int argc, char* argv[]) {
 
             if (dados_bytes > 0) {
                 submitTask(dado_recebido);
-                printf("Server: Tarefa recebida e enviada para a fila!\n");
+                //printf("Server: Tarefa recebida e enviada para a fila!\n");
             } else if(dados_bytes == 0) {
-                printf("Server: Cliente desconectado\n");
+                //printf("Server: Cliente desconectado\n");
                 break;
             } else {
-                perror("Server: Erro grave na leitura do Pipe");
+                //perror("Server: Erro grave na leitura do Pipe");
                 break;
             }
             
