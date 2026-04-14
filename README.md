@@ -69,7 +69,11 @@ gcc cliente.c -o cliente
 
 # Executa 5 clientes simultaneamente
 for i in {1..5}; do ./cliente 2 & done
+
+# ou
+for i in {1..5}; do ./cliente 2 & done; wait
 ```
+Obs: O comando `wait` faz o terminal aguardar a finalização de todos os processos em background, evitando que o prompt fique “preso” ou desatualizado após a execução concorrente. Nele não precisa dar enter para o prompt voltar ao normal.
 
 ---
 
