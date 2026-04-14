@@ -114,12 +114,29 @@ Isso permite testar facilmente:
 
 ---
 
+## Registro de Execução `auditoria.log`
+O sistema gera automaticamente um arquivo chamado auditoria.log, que registra todas as operações processadas pelo servidor.
+
+Cada linha do log contém:
+- ID da thread que executou a operação;
+- PID do cliente que enviou a requisição;
+- Tipo da operação (INSERT, SELECT, UPDATE, DELETE);
+- Status da execução (Sucesso ou Falha).
+
+Exemplo de saída:
+```bash
+Thread 12345 | PID Cliente: 21644 | Operação: INSERT | Status: Sucesso
+Thread 12346 | PID Cliente: 21645 | Operação: DELETE | Status: Falha
+```
+---
+
 ## Funcionamento do sistema
-1. O cliente envia uma requisição (INSERT, SELECT, UPDATE, DELETE)
-2. A requisição é enviada via FIFO (pipe nomeado)
-3. O servidor recebe a requisição
-4. O servidor cria uma thread para processá-la
-5. A thread acessa o banco de dados com proteção de mutex
+1. O cliente envia uma requisição (INSERT, SELECT, UPDATE, DELETE);
+2. A requisição é enviada via FIFO (pipe nomeado);
+3. O servidor recebe a requisição;
+4. O servidor adiciona a requisição a uma fila compartilhada;
+5. Um pool de threads consome essa fila e processa as requisições;
+6. As threads acessam uma estrutura de dados em memória que simula o banco de dados, utilizando mutex para garantir exclusão mútua.
 
 ## Estrutura:
 ```bash
