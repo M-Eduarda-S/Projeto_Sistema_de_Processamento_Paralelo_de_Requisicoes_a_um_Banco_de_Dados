@@ -23,7 +23,17 @@ void enviar_requisicao(Requisicao req) {
 
     close(pipe); // fecha o pipe 
 
-    printf("PID Cliente: %d - A requisição foi enviada!\n", getpid());
+    const char *op_texto;
+
+    switch(req.tipo) {
+        case OP_INSERT: op_texto = "INSERT"; break;
+        case OP_DELETE: op_texto = "DELETE"; break;
+        case OP_SELECT: op_texto = "SELECT"; break;
+        case OP_UPDATE: op_texto = "UPDATE"; break;
+        default:        op_texto = "DESCONHECIDA";
+    }
+
+    printf("PID Cliente: %d - Operação %s foi enviada!\n", getpid(), op_texto);
 }
 
 int main(int argQuantidade, char *argVetor[]) {

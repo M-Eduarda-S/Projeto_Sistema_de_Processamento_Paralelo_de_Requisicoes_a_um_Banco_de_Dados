@@ -28,10 +28,13 @@ pthread_mutex_t mutex_log; // protege escrita no arquivo de auditoria.log
 // protótipos de funções
 int salvarRequisicao(Requisicao* req){
     int status = 0;
-    printf("[Aguardando] Thread %ld quer acessar o banco...\n", pthread_self());
+
+    printf("Thread %ld - TENTANDO acessar o banco...\n", pthread_self()); // quer acessar o banco
     pthread_mutex_lock(&mutex_bd); // impedir condicao de corrida
-    printf(">> [ENTROU] Thread %ld trancou a porta!\n", pthread_self());
-    usleep(200000); // Para testar a concorrência, adicionamos um sleep para acumular as threads
+    printf("Thread %ld - ENTROU na região crítica!\n", pthread_self()); // entrou no banco
+    
+    usleep(200000); // para testar a concorrência, adicionamos um sleep para acumular as threads
+
     switch(req->tipo){
         case OP_INSERT:
             printf("Executando INSERT...\n");
@@ -112,7 +115,8 @@ int salvarRequisicao(Requisicao* req){
             default:
             printf("Operação Invalída!\n");
         }
-    printf("<< [SAIU] Thread %ld terminou e abriu a porta.\n", pthread_self());
+
+    printf("Thread %ld - TERMINOU e liberou o banco.\n", pthread_self()); // saiu do banco
     pthread_mutex_unlock(&mutex_bd);
     return status;
 }
@@ -215,12 +219,11 @@ int main(int argc, char* argv[]) {
 
             if (dados_bytes > 0) {
                 submitTask(dado_recebido);
-                //printf("Server: Tarefa recebida e enviada para a fila!\n");
-            } else if(dados_bytes == 0) {
+                //printf("\nServer: Tarefa recebida e enviada para a fila!\n"); // se quiser saber sobre a entrada entrada da tarefa na fila, descomente aqui
                 //printf("Server: Cliente desconectado\n");
                 break;
             } else {
-                //perror("Server: Erro grave na leitura do Pipe");
+                perror("Server: Erro grave na leitura do Pipe");
                 break;
             }
             
