@@ -144,7 +144,6 @@ src/
 │
 ├── cliente.c        # Envia requisições para o servidor
 ├── servidor.c       # Recebe requisições e usa threads
-├── banco.txt        # Simulação da base de dados
 ├── banco.h          # Structs e defines      
 └── requisicoes.h    # Lista com requisições já prontas
 ```
