@@ -67,6 +67,9 @@ Em outro terminal:
 cd src
 gcc cliente.c -o cliente
 
+# Teste de estresse (500 requisições)
+./cliente 3
+
 # Executa 5 clientes simultaneamente
 for i in {1..5}; do ./cliente 2 & done
 
@@ -74,8 +77,8 @@ for i in {1..5}; do ./cliente 2 & done
 for i in {1..5}; do ./cliente 2 & done; wait
 ```
 Obs: O comando `wait` faz o terminal aguardar a finalização de todos os processos em background, evitando que o prompt fique “preso” ou desatualizado após a execução concorrente. Nele não precisa dar enter para o prompt voltar ao normal.
-
 ---
+
 
 ## Observações sobre concorrência
 Devido ao uso de threads, o sistema executa as requisições de forma concorrente, ou seja, a ordem de execução não é garantida.

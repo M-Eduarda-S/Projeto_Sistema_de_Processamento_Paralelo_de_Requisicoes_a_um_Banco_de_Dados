@@ -60,6 +60,26 @@ int main(int argQuantidade, char *argVetor[]) {
         exit(0);
     }
 
+    if (modo == 3) {
+        printf("\nExecutando teste de ESTRESSE (Rajada de 500)...\n");
+
+        for (int i = 0; i < 500; i++) {
+            Requisicao req;
+            req.tipo = OP_INSERT;
+            req.reg.id = i;
+            sprintf(req.reg.nome, "Teste_%d", i);
+
+            // Envia SEM USLEEP! O objetivo é ser mais rápido que o servidor.
+            enviar_requisicao(req); 
+            
+            // Print a cada 100 para você acompanhar no terminal do cliente
+            if ((i + 1) % 100 == 0) {
+                printf("Enviadas %d requisições...\n", i + 1);
+            }
+        }
+        printf("Teste de rajada finalizado.\n");
+        exit(0);
+    }
     // menu operações manuais
     int opcao;
 
