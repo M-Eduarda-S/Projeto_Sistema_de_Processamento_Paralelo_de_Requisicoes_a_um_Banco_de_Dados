@@ -24,6 +24,7 @@ Este projeto deve ser executado em ambiente Linux ou no GitHub Codespaces, pois 
 - Chamadas de sistema específicas do Linux
 
 Obs: Não é garantido funcionamento em Windows sem adaptações.
+
 ---
 
 ## Como compilar
