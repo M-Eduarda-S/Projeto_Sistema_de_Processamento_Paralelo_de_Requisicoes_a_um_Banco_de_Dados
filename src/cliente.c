@@ -49,14 +49,14 @@ int main(int argQuantidade, char *argVetor[]) {
 
    // teste pré-definido
     if (modo == 2) {
-        printf("\nExecutando teste de concorrência...\n");
+        printf("\nExecutando teste de concorrência (5 clientes concorrentes x 20 requisições cada = 100 requisições no total)...\n");
 
         for (int i = 0; i < 20; i++) {
             enviar_requisicao(lista_teste[i]);
             usleep(200000); // pequeno delay
         }
 
-        printf("Execução finalizada.\n");
+        printf("Teste de concorrência finalizada.\n");
         exit(0);
     }
 
@@ -77,7 +77,7 @@ int main(int argQuantidade, char *argVetor[]) {
                 printf("Enviadas %d requisições...\n", i + 1);
             }
         }
-        printf("Teste de rajada finalizado.\n");
+        printf("Teste de estresse finalizado.\n");
         exit(0);
     }
     // menu operações manuais
