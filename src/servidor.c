@@ -35,7 +35,7 @@ int salvarRequisicao(Requisicao* req){
     int status = 0;
     printf("[Aguardando] Thread %ld quer acessar o banco...\n", pthread_self());
     pthread_mutex_lock(&mutex_bd); // impedir condicao de corrida
-    printf(">> [ENTROU] Thread %ld trancou a porta!\n", pthread_self());
+    printf(">> [ENTROU] Thread %ld acessando região crítica (bd_simulado)\n", pthread_self());
     usleep(200000); // Para testar a concorrência, adicionamos um sleep para acumular as threads
     switch(req->tipo){
         case OP_INSERT:
@@ -99,7 +99,7 @@ int salvarRequisicao(Requisicao* req){
             default:
             printf("Operação Invalída!\n");
         }
-    printf("<< [SAIU] Thread %ld terminou e abriu a porta.\n", pthread_self());
+    printf("<< [SAIU] Thread %ld liberou a região crítica (bd_simulado)\n", pthread_self());
     pthread_mutex_unlock(&mutex_bd);
     return status;
 }

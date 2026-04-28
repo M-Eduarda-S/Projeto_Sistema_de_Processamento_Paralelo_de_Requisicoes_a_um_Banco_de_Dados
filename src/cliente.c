@@ -61,7 +61,7 @@ int main(int argQuantidade, char *argVetor[]) {
     }
 
     if (modo == 3) {
-        printf("\nExecutando teste de ESTRESSE (Rajada de 500)...\n");
+        printf("\nExecutando teste de estresse (500 requisições)...\n");
 
         for (int i = 0; i < 500; i++) {
             Requisicao req;
@@ -69,10 +69,10 @@ int main(int argQuantidade, char *argVetor[]) {
             req.reg.id = i;
             sprintf(req.reg.nome, "Teste_%d", i);
 
-            // Envia SEM USLEEP! O objetivo é ser mais rápido que o servidor.
+            // envia sem o usleep, para ser mais rápido que o servidor
             enviar_requisicao(req); 
             
-            // Print a cada 100 para você acompanhar no terminal do cliente
+            // print a cada 100 requisições
             if ((i + 1) % 100 == 0) {
                 printf("Enviadas %d requisições...\n", i + 1);
             }
