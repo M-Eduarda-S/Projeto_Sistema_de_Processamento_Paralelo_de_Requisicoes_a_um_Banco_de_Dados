@@ -203,11 +203,11 @@ int main(int argc, char* argv[]) {
     while(1){
         ///printf("Servidor aberto...\n");
         
-        int fd = open(CAMINHO_PIPE, O_RDONLY); // abre o FIFO para leitura
+        int fd = open(CAMINHO_PIPE, O_RDWR); // abre o FIFO para leitura
         if(fd == -1){
             return 1;
         }
-        int dummy_fd = open(CAMINHO_PIPE, O_RDWR);
+        
         Requisicao dado_recebido;
         
         // recebe requisições enquanto o cliente estiver conectado
